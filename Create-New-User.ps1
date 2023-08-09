@@ -1,13 +1,13 @@
-﻿Import-Module ActiveDirectory
+Import-Module ActiveDirectory
 Import-Module AzureADPreview
 
 #Get Credentials to connect
-$Credential = Get-Credential
+#$Credential = Get-Credential
 
-Connect-AzureAD -Credential $Credential
+#Connect-AzureAD -Credential $Credential
 
 #Connect to Exchange Online
-Connect-ExchangeOnline -Credential $Credential -ShowBanner:$False
+#Connect-ExchangeOnline -Credential $Credential -ShowBanner:$False
 
 $users = Get-ADUser -SearchBase ‘OU=Test Users, OU=CFGA Users,DC=cfga,DC=titan,DC=1sourcing, DC=net’ -filter *
 
@@ -22,6 +22,8 @@ foreach ($user in $users)
     #$sam = $_SamAccountName
 
     Write-Host "UserPrincipalName: $UserPrincipalName"
+    
+    <# Azure AD Commands
     $account = Get-AzureADUser | Where-Object {$_.UserPrincipalName -eq $UserPrincipalName}
     Write-Host "Account: $account"
     
@@ -33,8 +35,15 @@ foreach ($user in $users)
 
         #PowerShell to add a user to office 365 group
         Add-UnifiedGroupLinks -Identity OfficeUsersTest@cfgreateratlanta.onmicrosoft.com -LinkType "Members" -Links $email
-    }
+    #>
+
+    #Local AD Commands
+    Add-ADGroupMember -Identity M365_license_E3_Base -Members $user
+
+    
 }
 
+
+
         #Disconnect Exchange Online
-        Disconnect-ExchangeOnline -Confirm:$False
+       #Disconnect-ExchangeOnline -Confirm:$False
